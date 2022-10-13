@@ -1,47 +1,33 @@
 <template>
-  <div class="Wokoo" v-if="show">
-    <header class="Wokoo-header">
-      <img :src="logo" class="Wokoo-logo" alt="logo" />
-      <span
-        class="Wokoo-close-icon"
-        @click="handleClose"
-      >
-        ×
-      </span>
-      <p>
-        Edit <code>App.vue</code> and save to reload.
-      </p>
-      <a
-        class="Wokoo-link"
-        href="https://juejin.cn/post/6922815205575491597"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Learn Wokoo
-      </a>
-    </header>
-  </div>
-  <div class="Wokoo-hide" @click="handleClose" v-else>
-    <img :src="logo" class="Wokoo-hide-logo" alt="logo" />
-    open
+  <div>
+    <van-cell is-link @click="showPopup">展示弹出层</van-cell>
+    <!-- 图标位置 -->
+    <van-popup
+        v-model="show"
+        closeable
+        close-icon-position="top-left"
+        position="bottom"
+        :style="{ height: '30%' }"
+    >内容</van-popup>
   </div>
 </template>
+
 <script>
 import './app.less'
-import logo from '../public/icon.jpg'
+
 export default {
   data: function() {
     return {
-      logo,
-      show: true
+      show: false
     }
   },
   methods: {
-    handleClose() {
-      this.show = !this.show
-    }
+    showPopup() {
+      this.show = true;
+    },
   }
 }
 </script>
+
 <style scoped>
 </style>

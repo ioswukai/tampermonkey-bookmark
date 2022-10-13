@@ -7,6 +7,7 @@
     "build": "webpack"
   },
   "dependencies": {
+    "vant": "^2.12.50",
     "vue": "2.7.12",
     "vue-template-compiler": "2.7.12"
   },
