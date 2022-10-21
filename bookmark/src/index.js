@@ -5,6 +5,8 @@ import Vant from 'vant'
 import 'vant/lib/index.css'
 // 导入router设置
 import router from './router'
+// 导入icon
+import './icon.less'
 
 Vue.use(Vant)
 

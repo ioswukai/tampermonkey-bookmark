@@ -9,11 +9,7 @@
 
     <van-form @submit="onSubmit">
       <div class="header">
-        <van-icon
-            class="icon"
-            name="star"
-            color="#1989fa"
-        />
+        <i class="bookmark bookmark-yuedu icon"></i>
         <div class="fields-content">
           <van-field
               v-model="bookmarkTitle"
