@@ -9,7 +9,12 @@
 
     <van-form @submit="onSubmit">
       <div class="header">
-        <i class="bookmark bookmark-yuedu icon"></i>
+        <van-icon
+            :name="bookmarkIcon"
+            :class="[bookmarkIcon ? null : 'bookmark bookmark-yuedu']"
+            class="icon"
+            size="50"
+        />
         <div class="fields-content">
           <van-field
               v-model="bookmarkTitle"
@@ -42,9 +47,13 @@ export default {
       title: this.getEditState() ? '编辑书签' : '添加书签',
       bookmarkTitle: this.getEditState() ? this.$route.query.bookmarkInfo.title : document.title,
       bookmarkURL: this.getEditState() ? this.$route.query.bookmarkInfo.URL : location.href,
+      bookmarkIcon: null,
     };
   },
   mounted() {
+    this.getIconURL().then(res => {
+      this.bookmarkIcon = res;
+    })
   },
   methods: {
     getEditState() {
@@ -54,6 +63,34 @@ export default {
           && this.$route.query.bookmarkInfo.URL) return true;
       // 添加
       return false;
+    },
+    async getIconURL() {
+      const urlPrefix = location.protocol + '//' + location.host;
+      const favicon =  urlPrefix + '/favicon.ico';
+      const apiFavicon = 'https://api.iowen.cn/favicon/' + location.host + '.png'
+
+      // 直接取favicon
+      if (await this.isImgURLValid(favicon)) {
+        return  favicon
+      };
+      // 直接取不到时，用api取
+      if (await this.isImgURLValid(apiFavicon)) {
+        return apiFavicon
+      };
+      // 都取不到，返回null
+      return null;
+    },
+     isImgURLValid(imgURL) {
+      return new Promise(function(resolve, reject) {
+        let ImgObj = new Image(); //判断图片是否存在
+        ImgObj.src = imgURL;
+        ImgObj.onload = function(res) {
+          resolve(res);
+        }
+        ImgObj.onerror = function(err) {
+          reject(err)
+        }
+      }).catch((e) => {}); // 加上这句不会报错（Uncaught (in promise)）
     },
     onBackClick() {
       this.$router.back()
@@ -84,7 +121,6 @@ export default {
   height: 50px;
   line-height: 50px;
   text-align: center;
-  font-size: 50px;
   margin: 10px 15px 10px 20px;
 }
 
