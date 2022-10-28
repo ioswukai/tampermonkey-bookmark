@@ -74,7 +74,10 @@ export default {
     // 这里存放数据
     return {
       folderDataSource: [],
-      currentFolderInfo: null,
+      currentFolderInfo: {
+        type: BookmarkInfoModel,
+        default: null
+      },
       isLocalUnfold:false
     }
   },
@@ -86,36 +89,14 @@ export default {
       this.currentFolderInfo = folderInfo
       this.isLocalUnfold = false
     },
-    // 深拷贝
-    cloneDeepObj(obj) {
-      let str, newobj = obj.constructor === Array ? [] : {};
-      if(typeof obj !== 'object'){
-        return;
-      } else if(window.JSON){
-        str = JSON.stringify(obj), //系列化对象
-            newobj = JSON.parse(str); //还原
-      } else {
-        for(let i in obj){
-          newobj[i] = typeof obj[i] === 'object' ?
-              this.cloneDeepObj(obj[i]) : obj[i];
-        }
-      }
-      return newobj;
-    },
-    // 遍历树结构
-    mapTree(tree, func) {
-      // 深度优先遍历树形结构 node当前节点  curTree当前树
-      let node, curTree = this.cloneDeepObj(tree);
-      // 遍历子节点
-      while ((node = curTree.listInFolder.shift())) {
-        // 调用回调
-        func()
-        node.listInFolder && curTree.listInFolder.unshift(...node.listInFolder)
-      }
-    }
   },
   // 监控data中的数据变化
-  watch: {},
+  watch: {
+    // 如果 `currentFolderInfo` 发生改变，这个函数就会运行
+    currentFolderInfo: function (newVal, oldVal) {
+      this.$emit('selectedFolder', newVal)
+    }
+  },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created() {
 
@@ -128,15 +109,14 @@ export default {
     // 添加根节点
     this.folderDataSource.unshift(tree)
     // 遍历树
-    this.mapTree(tree, (node) => {
+    tree.mapModelInfoTree((node) => {
       // 添加子节点
       this.folderDataSource.push(node)
-    });
+    })
     this.folderDataSource.forEach((node) => {
       console.log('path = ' + node.path)
       console.log(node)
       console.log('id = ' + node.id)
-
     })
     this.currentFolderInfo = this.folderDataSource[0]
   },

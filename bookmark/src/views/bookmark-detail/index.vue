@@ -31,7 +31,7 @@
 
       <!--位置选择-->
       <div class="local-title">位置</div>
-      <BookmarkLocalListIndex/>
+      <BookmarkLocalListIndex @selectedFolder="selectedFolder"/>
 
       <div style="margin: 16px;">
         <van-button round block type="info" native-type="submit">存储</van-button>
@@ -43,6 +43,8 @@
 
 <script>
 import BookmarkLocalListIndex from  "../../components/bookmark-local-list.vue";
+import store from "../../utils/vuex-store.js"
+import BookmarkInfoModel from '../../BookmarkInfoModel.js'
 
 export default {
   name: "BookmarkDetail",
@@ -57,7 +59,11 @@ export default {
       title: this.getEditState() ? '编辑书签' : '添加书签',
       bookmarkTitle: this.getEditState() ? this.$route.query.bookmarkInfo.title : document.title,
       bookmarkURL: this.getEditState() ? this.$route.query.bookmarkInfo.URL : location.href,
-      bookmarkIcon: null
+      bookmarkIcon: null,
+      currentFolderInfo: {
+        type: BookmarkInfoModel,
+        default: null
+      },
     };
   },
   mounted() {
@@ -108,6 +114,9 @@ export default {
     onSubmit(values) {
       console.log(values)
     },
+    selectedFolder(bookmarkInfoModel) {
+      this.currentFolderInfo = bookmarkInfoModel
+    }
   },
 }
 </script>

@@ -45,6 +45,33 @@ class BookmarkInfoModel {
         // 五角星
         this.icon = 'star'
     }
+    /** 遍历当前模型树 */
+    mapModelInfoTree(func) {
+        // 深度优先遍历树形结构 node当前节点  curTree当前树
+        let node, curTree = this.cloneDeepObj(this);
+        // 遍历子节点
+        while ((node = curTree.listInFolder.shift())) {
+            // 调用回调
+            func()
+            node.listInFolder && curTree.listInFolder.unshift(...node.listInFolder)
+        }
+    }
+    // 深拷贝
+    cloneDeepObj(obj) {
+        let str, newobj = obj.constructor === Array ? [] : {};
+        if(typeof obj !== 'object'){
+            return;
+        } else if(window.JSON){
+            str = JSON.stringify(obj), //系列化对象
+                newobj = JSON.parse(str); //还原
+        } else {
+            for(let i in obj){
+                newobj[i] = typeof obj[i] === 'object' ?
+                    this.cloneDeepObj(obj[i]) : obj[i];
+            }
+        }
+        return newobj;
+    }
 }
 
 export default BookmarkInfoModel
