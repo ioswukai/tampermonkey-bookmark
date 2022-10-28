@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { setItem, getItem } from './storage'
 import StoreKey from './store-key'
+import BookmarkInfoModel from "../BookmarkInfoModel";
 
 Vue.use(Vuex)
 
@@ -10,7 +11,13 @@ export default new Vuex.Store({
   state: {
     isBookmarkShow: getItem(StoreKey.isBookmarkShow),
     isListShow: getItem(StoreKey.isListShow),
-    bookmarkListData: getItem(StoreKey.bookmarkListData),
+    bookmarkListData: getItem(StoreKey.bookmarkListData) || function() {
+      const rootModel =  new BookmarkInfoModel()
+      rootModel.title = '书签'
+      rootModel.path = '/书签'
+      rootModel.setupStarIcon();
+      return rootModel;
+    }(),
   },
   // 修改数据，永远通过mutations修改数据，可响应式
   mutations: {

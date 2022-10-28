@@ -29,6 +29,10 @@
         </div>
       </div>
 
+      <!--位置选择-->
+      <div class="local-title">位置</div>
+      <BookmarkLocalListIndex/>
+
       <div style="margin: 16px;">
         <van-button round block type="info" native-type="submit">存储</van-button>
       </div>
@@ -38,8 +42,14 @@
 </template>
 
 <script>
+import BookmarkLocalListIndex from  "../../components/bookmark-local-list.vue";
+
 export default {
   name: "BookmarkDetail",
+  // import引入的组件需要注入到对象中才能使用
+  components: {
+    BookmarkLocalListIndex
+  },
   data() {
     return {
       // true: 编辑已有书签 false：添加新书签
@@ -47,7 +57,7 @@ export default {
       title: this.getEditState() ? '编辑书签' : '添加书签',
       bookmarkTitle: this.getEditState() ? this.$route.query.bookmarkInfo.title : document.title,
       bookmarkURL: this.getEditState() ? this.$route.query.bookmarkInfo.URL : location.href,
-      bookmarkIcon: null,
+      bookmarkIcon: null
     };
   },
   mounted() {
@@ -96,7 +106,8 @@ export default {
       this.$router.back()
     },
     onSubmit(values) {
-    }
+      console.log(values)
+    },
   },
 }
 </script>
@@ -130,8 +141,13 @@ export default {
 .fields-content .van-cell {
   padding: 10px 16px 10px 0px
 }
-.fields-content .van-cell::after {
+.header .van-cell::after {
   left: 0px;
   right: 0px;
+}
+.local-title {
+  margin-left: 32px;
+  font-size: 10px;
+  color: #999;
 }
 </style>
