@@ -17,7 +17,7 @@
         <van-icon
             :name="currentFolderInfo&&currentFolderInfo.isIconUseNamePorp&&currentFolderInfo.icon"
             class="folder-icon"
-            :class="[isLocalUnfold && 'folder-cell-selected',
+            :class="[!isLocalUnfold && 'folder-cell-selected',
             currentFolderInfo && !currentFolderInfo.isIconUseNamePorp && currentFolderInfo.icon]"
         />
       </template>
