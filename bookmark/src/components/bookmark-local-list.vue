@@ -6,47 +6,50 @@
 -->
 <template>
   <div class="bookmark-local-list-container">
-    <van-cell
-        :title="currentFolderInfo&&currentFolderInfo.title"
-        class="folder-cell"
-        @click="isLocalUnfold=!isLocalUnfold"
-        v-if="!isLocalUnfold"
-    >
-      <!-- 使用 right-icon 插槽来自定义右侧图标 -->
-      <template #icon>
-        <van-icon
-            :name="currentFolderInfo&&currentFolderInfo.isIconUseNamePorp&&currentFolderInfo.icon"
-            class="folder-icon"
-            :class="[!isLocalUnfold && 'folder-cell-selected',
-            currentFolderInfo && !currentFolderInfo.isIconUseNamePorp && currentFolderInfo.icon]"
-        />
-      </template>
-    </van-cell>
-    <div class="list" v-else>
+    <div class="local-title">位置</div>
+    <div class="content">
       <van-cell
+          :title="currentFolderInfo&&currentFolderInfo.title"
           class="folder-cell"
-          v-for="(folderInfo, index) in folderDataSource"
-          :title="folderInfo.title"
-          :key="folderInfo.id"
-          @click="didSelectCell(folderInfo)" >
+          @click="isLocalUnfold=!isLocalUnfold"
+          v-if="!isLocalUnfold"
+      >
         <!-- 使用 right-icon 插槽来自定义右侧图标 -->
         <template #icon>
           <van-icon
-              :name="folderInfo&&folderInfo.isIconUseNamePorp&&folderInfo.icon"
+              :name="currentFolderInfo&&currentFolderInfo.isIconUseNamePorp&&currentFolderInfo.icon"
               class="folder-icon"
-              :class="[folderInfo.id == currentFolderInfo.id && 'folder-cell-selected',
-              folderInfo && !folderInfo.isIconUseNamePorp && folderInfo.icon]"
-          />
-        </template>
-        <!-- 使用 right-icon 插槽来自定义右侧图标 -->
-        <template #right-icon>
-          <van-icon
-              name="success"
-              class="duigou-icon folder-cell-selected"
-              v-if="folderInfo.id == currentFolderInfo.id"
+              :class="[!isLocalUnfold && 'folder-cell-selected',
+            currentFolderInfo && !currentFolderInfo.isIconUseNamePorp && currentFolderInfo.icon]"
           />
         </template>
       </van-cell>
+      <div class="list" v-else>
+        <van-cell
+            class="folder-cell"
+            v-for="(folderInfo, index) in folderDataSource"
+            :title="folderInfo.title"
+            :key="folderInfo.id"
+            @click="didSelectCell(folderInfo)" >
+          <!-- 使用 right-icon 插槽来自定义右侧图标 -->
+          <template #icon>
+            <van-icon
+                :name="folderInfo&&folderInfo.isIconUseNamePorp&&folderInfo.icon"
+                class="folder-icon"
+                :class="[folderInfo.id == currentFolderInfo.id && 'folder-cell-selected',
+              folderInfo && !folderInfo.isIconUseNamePorp && folderInfo.icon]"
+            />
+          </template>
+          <!-- 使用 right-icon 插槽来自定义右侧图标 -->
+          <template #right-icon>
+            <van-icon
+                name="success"
+                class="duigou-icon folder-cell-selected"
+                v-if="folderInfo.id == currentFolderInfo.id"
+            />
+          </template>
+        </van-cell>
+      </div>
     </div>
   </div>
 </template>
@@ -74,10 +77,7 @@ export default {
     // 这里存放数据
     return {
       folderDataSource: [],
-      currentFolderInfo: {
-        type: BookmarkInfoModel,
-        default: null
-      },
+      currentFolderInfo: BookmarkInfoModel.getRootTree(),
       isLocalUnfold:false
     }
   },
@@ -87,38 +87,28 @@ export default {
   methods: {
     didSelectCell(folderInfo) {
       this.currentFolderInfo = folderInfo
+      // 通知父视图
+      this.$emit('selectedFolder', this.currentFolderInfo)
+
       this.isLocalUnfold = false
     },
   },
   // 监控data中的数据变化
-  watch: {
-    // 如果 `currentFolderInfo` 发生改变，这个函数就会运行
-    currentFolderInfo: function (newVal, oldVal) {
-      this.$emit('selectedFolder', newVal)
-    }
-  },
+  watch: {},
   // 生命周期 - 创建完成（可以访问当前this实例）
   created() {
 
   },
   // 生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
-    // 清空之前的数据
-    this.folderDataSource.length = 0;
-    const tree = store.state.bookmarkListData;
-    // 添加根节点
-    this.folderDataSource.unshift(tree)
-    // 遍历树
-    tree.mapModelInfoTree((node) => {
-      // 添加子节点
-      this.folderDataSource.push(node)
-    })
-    this.folderDataSource.forEach((node) => {
-      console.log('path = ' + node.path)
-      console.log(node)
-      console.log('id = ' + node.id)
-    })
+    // 初始化数据源
+    this.folderDataSource = BookmarkInfoModel.rootTreeMapToArray().filter((model) => {
+      // 只显示文件夹
+      return model.url.length <= 0
+    });
     this.currentFolderInfo = this.folderDataSource[0]
+    // 通知父视图
+    this.$emit('selectedFolder', this.currentFolderInfo)
   },
   beforeCreate() {
   }, // 生命周期 - 创建之前
@@ -142,6 +132,15 @@ export default {
 
 // 容器
 .bookmark-local-list-container {
+
+}
+.local-title {
+  margin-left: 32px;
+  font-size: 10px;
+  color: #999;
+}
+
+.content {
   background: white;
   margin: 16px;
   margin: 5px 16px 16px 16px;
@@ -165,5 +164,4 @@ export default {
   font-size: 18px;
   line-height: inherit;
 }
-
 </style>

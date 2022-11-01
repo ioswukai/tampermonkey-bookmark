@@ -5,15 +5,15 @@
         right-text="完成"
         @click-right="onCancelClick()"
     />
+    <div class="list-content">
 
-    <van-list
-        class="list-content"
-        v-model="loading"
-        :finished="finished"
-        @load="onLoad"
-    >
-      <van-cell v-for="item in list" :key="item" :title="item" />
-    </van-list>
+      <!--书签cell-->
+      <BookmarkCellIndex
+          v-for="item in folderDataSource"
+          :key="item.id"
+          :info-model="item" />
+    </div>
+
     <div class="tool-bar">
       <span
           class="left-btn"
@@ -29,14 +29,18 @@
 
 <script>
 import store from "../../utils/vuex-store";
+import BookmarkCellIndex from  "../../components/bookmark-cell.vue";
+import BookmarkInfoModel from '../../BookmarkInfoModel.js'
 
 export default {
   name: "Home",
+  // import引入的组件需要注入到对象中才能使用
+  components: {
+    BookmarkCellIndex
+  },
   data() {
     return {
-      list: [],
-      loading: false,
-      finished: false,
+      folderDataSource: BookmarkInfoModel.getRootTree().listInFolder,
     };
   },
   methods: {
@@ -48,27 +52,6 @@ export default {
     },
     onCancelClick() {
       store.commit('setIsListShow', false);
-    },
-    onLoad() {
-      // 异步更新数据
-      // setTimeout 仅做示例，真实场景中一般为 ajax 请求
-      setTimeout(() => {
-        for (let i = 0; i < 10; i++) {
-          this.list.push(this.list.length + 1);
-        }
-
-        // 加载状态结束
-        this.loading = false;
-
-        // 数据全部加载完成
-        if (this.list.length >= 40) {
-          this.finished = true;
-        }
-      }, 1000);
-
-      // 加载状态结束
-      // this.loading = false;
-      // this.finished = true;
     },
   },
 }

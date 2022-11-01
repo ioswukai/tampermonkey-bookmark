@@ -11,13 +11,17 @@ export default new Vuex.Store({
   state: {
     isBookmarkShow: getItem(StoreKey.isBookmarkShow),
     isListShow: getItem(StoreKey.isListShow),
-    bookmarkListData: getItem(StoreKey.bookmarkListData) || function() {
-      const rootModel =  new BookmarkInfoModel()
-      rootModel.title = '书签'
-      rootModel.path = '/书签'
-      rootModel.setupStarIcon();
-      return rootModel;
-    }(),
+    bookmarkListData: function () {
+      // 反序列化后是一个普通的对象
+      const treeJson = getItem(StoreKey.bookmarkListData)
+      if (treeJson) {
+        return BookmarkInfoModel.modelWithDic(treeJson)
+      } else {
+        const rootTree = BookmarkInfoModel.createRootTree()
+        setItem(StoreKey.bookmarkListData, rootTree)
+        return rootTree
+      }
+    }()
   },
   // 修改数据，永远通过mutations修改数据，可响应式
   mutations: {
