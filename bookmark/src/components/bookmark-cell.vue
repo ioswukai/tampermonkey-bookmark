@@ -127,6 +127,9 @@ export default {
   height: 35px;
   width: 35px;
 }
+.bookmark-yuedu:before {
+  font-size: 35px;
+}
 .fields-content {
   position: relative;
   flex: 1;
