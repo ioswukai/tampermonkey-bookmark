@@ -51,13 +51,22 @@ export default {
   data() {
     // 这里存放数据
     return {
-      folderDataSource: this.infoModel.listInFolder,
+      folderDataSource: this.infoModel.listInFolder.map((info) => {
+        // 把object类型的书签，转化成BookmarkInfoModel类型
+        return BookmarkInfoModel.modelWithDic(info,false);
+      }),
     }
   },
   // 监听属性 类似于data概念
   computed: {},
   // 方法集合
   methods: {
+    refreshData(infoModel) {
+      this.folderDataSource = infoModel.listInFolder.map((info) => {
+        // 把object类型的书签，转化成BookmarkInfoModel类型
+        return BookmarkInfoModel.modelWithDic(info,false);
+      })
+    },
     onCellClick(infoModel) {
       this.$emit('onCellClick', infoModel)
     }

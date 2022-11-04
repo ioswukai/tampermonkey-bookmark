@@ -2,14 +2,18 @@
   <div class="home-container">
     <van-nav-bar
         title="书签"
+        :left-text="infoModel.id == rootInfoModel.id ? '' : infoModel.title"
         :right-text="isEdit ? '' : '完成'"
-        @click-right="onCancelClick()"
+        :left-arrow="infoModel.id != rootInfoModel.id"
+        @click-right="onCancelClick"
+        @click-left="onBackClick"
     />
 
     <!-- 列表-->
     <BookmarkListIndex
         :info-model="infoModel"
         @onCellClick="onCellClick"
+        ref="list"
     />
 
     <div class="tool-bar">
@@ -37,16 +41,11 @@ export default {
   components: {
     BookmarkListIndex,
   },
-  props: {
-    infoModel: {
-      type: BookmarkInfoModel,
-      default() {
-        return BookmarkInfoModel.getRootTree()
-      }
-    }
-  },
   data() {
     return {
+      title: "书签",
+      rootInfoModel: BookmarkInfoModel.getRootTree(),
+      infoModel: BookmarkInfoModel.getRootTree(),
       leftBtnTitle: '添加书签',
       rightBtnTitle: '编辑',
       isEdit: false
@@ -55,12 +54,28 @@ export default {
   methods: {
     onLeftClick() {
       if (this.isEdit) {
+        // 添加文件件
         this.$router.push({
-          name: 'bookmark-folder-detail'
+          name: 'bookmark-folder-detail',
+          params: {
+            infoModel: (() => {
+              console.log('添加文件夹，传递的参数')
+              console.log(this.infoModel)
+              return this.infoModel
+            })()
+          }
         })
       } else {
+        // 添加书签
         this.$router.push({
-          name:'bookmark-detail'
+          name:'bookmark-detail',
+          params: {
+            infoModel: (() => {
+              console.log('添加书签，传递的参数')
+              console.log(this.infoModel)
+              return this.infoModel
+            })()
+          }
         })
       }
     },
@@ -72,6 +87,17 @@ export default {
       } else {
         this.leftBtnTitle = "添加书签"
         this.rightBtnTitle = "编辑"
+      }
+    },
+    onBackClick() {
+      if (this.infoModel.id == this.rootInfoModel.id) {
+        // 取消当前弹框
+        this.onCancelClick();
+      } else {
+        // 回退上级节点
+        this.infoModel = BookmarkInfoModel.getSuperNode(this.rootInfoModel, this.infoModel.accessPath)
+        // 强制list刷新
+        this.$refs.list.refreshData(this.infoModel)
       }
     },
     onCancelClick() {
@@ -95,13 +121,10 @@ export default {
         // 常规状态
         if (infoModel.isFolder()
             && infoModel.listInFolder.length > 0){
-            // 文件夹
-          this.$router.push({
-            name:'home',
-            params: {
-              infoModel,
-            }
-          })
+          // 文件夹
+          this.infoModel = infoModel
+          // 强制list刷新
+          this.$refs.list.refreshData(this.infoModel)
         } else {
           // 书签 当前窗口打开书签
           window.open(infoModel.url,'_self')

@@ -62,8 +62,7 @@ export default {
   data() {
     return {
       title: this.isEdit ? '编辑书签' : '添加书签',
-      currentFolderInfo: this.isEdit ? BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.infoModel.accessPath)
-          : BookmarkInfoModel.getRootTree()
+      currentFolderInfo: BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.infoModel.accessPath)
     };
   },
   mounted() {

@@ -128,11 +128,6 @@ class BookmarkInfoModel {
             // 添加子节点
             arr.push(node)
         })
-        // arr.forEach((node) => {
-        //     console.log('path = ' + node.path)
-        //     console.log(node)
-        //     console.log('id = ' + node.id)
-        // })
         return arr
     }
     /** 将根节点的树形结构映射成数组，数组按序排列所有节点 */
@@ -140,7 +135,7 @@ class BookmarkInfoModel {
         return this.treeMapToArray(this.getRootTree())
     }
     /** 以dic 创建BookmarkInfoModel实例 */
-    static modelWithDic(dic) {
+    static modelWithDic(dic, needDeepClone=true) {
         // 数据非法
         if (!dic) {
             console.log('modelWithDic(dic) 中dic数据非法')
@@ -152,8 +147,17 @@ class BookmarkInfoModel {
             return dic
         }
 
-        console.log('原始字典数据是')
-        console.log(dic)
+        // console.log('原始字典数据是')
+        // console.log(dic)
+        if (!needDeepClone) {
+            const model = new BookmarkInfoModel()
+            for (const key in dic) {
+                model[key] = dic[key]
+            }
+            // console.log('最终结果model是')
+            // console.log(model)
+            return model;
+        }
         // 将树形结构映射成 array
         let targetTree, dics = this.treeMapToArray(dic);
         // 将字典转化成模型
@@ -177,8 +181,8 @@ class BookmarkInfoModel {
                     if (n.id == item.id) {
                         // 将字典item替换成model
                         targetListInFolder.splice(j,1, model)
-                        console.log('将字典替换成模型后的数组为')
-                        console.log(targetListInFolder)
+                        // console.log('将字典替换成模型后的数组为')
+                        // console.log(targetListInFolder)
                         break;
                     }
                 }
@@ -187,8 +191,8 @@ class BookmarkInfoModel {
                 targetTree = model
             }
         }
-        console.log('最终结果model是')
-        console.log(targetTree)
+        // console.log('最终结果model是')
+        // console.log(targetTree)
         return targetTree
     }
     /** 获得父文件夹 */

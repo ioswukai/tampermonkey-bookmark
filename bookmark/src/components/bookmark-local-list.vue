@@ -117,11 +117,7 @@ export default {
       }
     }).map((info) => {
       // 把object类型的文件夹，转化成BookmarkInfoModel类型
-      const model = new BookmarkInfoModel()
-      for (const key in info) {
-        model[key] = info[key]
-      }
-      return model;
+      return BookmarkInfoModel.modelWithDic(info,false);
     });
     // 通知父视图
     this.$emit('selectedFolder', this.currentFolderInfo)
