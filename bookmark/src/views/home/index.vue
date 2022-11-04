@@ -2,57 +2,112 @@
   <div class="home-container">
     <van-nav-bar
         title="书签"
-        right-text="完成"
+        :right-text="isEdit ? '' : '完成'"
         @click-right="onCancelClick()"
     />
-    <div class="list-content">
 
-      <!--书签cell-->
-      <BookmarkCellIndex
-          v-for="item in folderDataSource"
-          :key="item.id"
-          :info-model="item" />
-    </div>
+    <!-- 列表-->
+    <BookmarkListIndex
+        :info-model="infoModel"
+        @onCellClick="onCellClick"
+    />
 
     <div class="tool-bar">
       <span
           class="left-btn"
           @click="onLeftClick()"
-      >添加书签</span>
+      >{{this.leftBtnTitle}}</span>
       <span
           class="right-btn"
+          :class="{'edit-btn-color': isEdit}"
           @click="onRightClick()"
-      >编辑</span>
+      >{{this.rightBtnTitle}}</span>
     </div>
   </div>
 </template>
 
 <script>
 import store from "../../utils/vuex-store";
-import BookmarkCellIndex from  "../../components/bookmark-cell.vue";
-import BookmarkInfoModel from '../../BookmarkInfoModel.js'
+import BookmarkListIndex from  "../../components/bookmark-list.vue";
+import BookmarkInfoModel from "../../BookmarkInfoModel";
 
 export default {
   name: "Home",
   // import引入的组件需要注入到对象中才能使用
   components: {
-    BookmarkCellIndex
+    BookmarkListIndex,
+  },
+  props: {
+    infoModel: {
+      type: BookmarkInfoModel,
+      default() {
+        return BookmarkInfoModel.getRootTree()
+      }
+    }
   },
   data() {
     return {
-      folderDataSource: BookmarkInfoModel.getRootTree().listInFolder,
+      leftBtnTitle: '添加书签',
+      rightBtnTitle: '编辑',
+      isEdit: false
     };
   },
   methods: {
     onLeftClick() {
-      this.$router.push('/bookmark-detail')
+      if (this.isEdit) {
+        this.$router.push({
+          name: 'bookmark-folder-detail'
+        })
+      } else {
+        this.$router.push({
+          name:'bookmark-detail'
+        })
+      }
     },
     onRightClick() {
-
+      this.isEdit = !this.isEdit
+      if (this.isEdit) {
+        this.leftBtnTitle = "添加文件夹"
+        this.rightBtnTitle = "完成"
+      } else {
+        this.leftBtnTitle = "添加书签"
+        this.rightBtnTitle = "编辑"
+      }
     },
     onCancelClick() {
       store.commit('setIsListShow', false);
     },
+    onCellClick(infoModel) {
+      if (!infoModel) {return}
+
+      if (this.isEdit) {
+        // 编辑状态
+        const name = infoModel.isFolder() ? 'bookmark-folder-detail' : 'bookmark-detail';
+        const isEdit = this.isEdit
+        this.$router.push({
+          name,
+          params: {
+            infoModel,
+            isEdit
+          }
+        })
+      } else  {
+        // 常规状态
+        if (infoModel.isFolder()
+            && infoModel.listInFolder.length > 0){
+            // 文件夹
+          this.$router.push({
+            name:'home',
+            params: {
+              infoModel,
+            }
+          })
+        } else {
+          // 书签 当前窗口打开书签
+          window.open(infoModel.url,'_self')
+        }
+      }
+    }
   },
 }
 </script>
@@ -89,5 +144,9 @@ export default {
   color: #323233;
   padding: 11.5px 16px;
 }
+.edit-btn-color {
+  color: #1989fa;
+}
+
 
 </style>

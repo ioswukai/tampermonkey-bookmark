@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { setItem, getItem } from './storage'
-import StoreKey from './store-key'
+import { setItem, getItem, StoreKey } from './storage'
 import BookmarkInfoModel from "../BookmarkInfoModel";
 
 Vue.use(Vuex)

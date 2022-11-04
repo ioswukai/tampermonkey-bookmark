@@ -33,3 +33,21 @@ export const getItem = key => {
 export const removeItem = key => {
   window.localStorage.removeItem(key)
 }
+
+/**
+ * 存储和访问localStorage中元素的key
+ */
+export const StoreKey = {
+  /**
+   * 显示书签icon
+   */
+  isBookmarkShow: 'IS_BOOKMARK_SHOW',
+  /**
+   * 显示书签列表
+   */
+  isListShow: 'IS_LIST_SHOW',
+  /**
+   * 书签列表数据
+   */
+  bookmarkListData: 'BOOKMARK_LIST_DATA',
+}

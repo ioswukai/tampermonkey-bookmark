@@ -1,33 +1,24 @@
 <!--
   文件描述：
-  创建时间：2022/10/28 19:13
+  创建时间：2022/11/3 09:57
   创建人：edy
   #
 -->
 <template>
-  <div class="bookmark-cell-container" @click="onCellClick">
-    <van-icon
-        :name="function () {
-          return infoModel&&(infoModel.isIconUseNamePorp()) ? infoModel.icon : null
-        }()"
-        :class="[infoModel&&(!infoModel.isIconUseNamePorp()) ? infoModel.icon : null]"
-        class="icon"
-        size="50"
-    />
-    <div class="fields-content">
-      <van-field
-          v-model="title"
-          placeholder="标题"
-          :disabled="disabledField"
-          :rules="[{ required: true, message: '请填写书签标题' }]"
-      />
-      <van-field
-          v-model="url"
-          placeholder="网址"
-          :disabled="disabledField"
-          :rules="[{ required: true, message: '请填写网址' }]"
-      />
-    </div>
+  <div class="bookmark-folder-cell-container" @click="onCellClick">
+    <van-cell
+          :title="infoModel.title"
+          class="folder-cell"
+      >
+        <!-- 使用 right-icon 插槽来自定义右侧图标 -->
+        <template #icon>
+          <van-icon
+              :name="infoModel&&infoModel.isIconUseNamePorp() ? infoModel.icon : null"
+              class="folder-icon folder-cell-selected"
+              :class="[infoModel &&!infoModel.isIconUseNamePorp()&& infoModel.icon]"
+          />
+        </template>
+      </van-cell>
   </div>
 </template>
 
@@ -38,30 +29,18 @@
 import BookmarkInfoModel from '../BookmarkInfoModel.js'
 
 export default {
-  name: "BookmarkCellIndex",
+  name: "BookmarkFolderCellIndex",
   // import引入的组件需要注入到对象中才能使用
   components: {},
   props: {
     infoModel: {
       required: true,
       type: BookmarkInfoModel,
-      default () {
-        return null
-      }
-    },
-    disabledField: {
-      type: Boolean,
-      default () {
-        return true
-      }
     }
   },
   data() {
     // 这里存放数据
-    return {
-      title: this.infoModel&&this.infoModel.title,
-      url: this.infoModel&&this.infoModel.url,
-    }
+    return {}
   },
   // 监听属性 类似于data概念
   computed: {},
@@ -69,7 +48,7 @@ export default {
   methods: {
     onCellClick() {
       this.$emit('onCellClick', this.infoModel)
-    },
+    }
   },
   // 监控data中的数据变化
   watch: {},
@@ -102,54 +81,46 @@ export default {
 //@import url(); 引入公共css类
 
 // 容器
-.bookmark-cell-container {
+.bookmark-folder-cell-container {
   background: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.icon {
-  flex-basis: 30px;
-  height: 35px;
-  width: 35px;
-  line-height: 35px;
-  font-size: 35px;
-  text-align: center;
-  margin: 0px 16px;
+.folder-cell {
+  display: flex;
+  align-items: center;
 }
-.icon .van-icon__image {
-  height: 35px;
-  width: 35px;
-}
-.fields-content {
+.van-cell__title {
   position: relative;
-  flex: 1;
-  padding: 8px 0px;
 }
-.fields-content::after {
+.folder-cell .van-cell__title::after {
   position: absolute;
   box-sizing: border-box;
   content: ' ';
   pointer-events: none;
   right: 0px;
-  bottom: 0px;
+  bottom: -12px;
   left: 0px;
   border-bottom: 1px solid #ebedf0;
   -webkit-transform: scaleY(0.5);
   transform: scaleY(0.5);
 }
-.fields-content .van-cell {
-  line-height: 16px;
-  padding: 0px 16px 0px 0px
+.folder-cell-selected {
+  color: #99C5FD;
 }
-/deep/ .fields-content .van-field__control:disabled  {
-  -webkit-text-fill-color: #323233;
+.van-cell {
+  height: 48px;
+  padding: unset;
 }
-.bookmark-cell-container .van-cell::after {
-  left: 0px;
+.van-cell::after {
+  left: 42px;
   right: 0px;
-  border-bottom: none;
 }
-
-
+.folder-icon {
+  margin: 0px 16px;
+  height: 35px;
+  width: 35px;
+  font-size: 35px;
+}
 </style>

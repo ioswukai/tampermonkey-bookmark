@@ -10,11 +10,17 @@
     <van-form @submit="onSubmit">
       <!--书签cell-->
       <BookmarkCellIndex
+          class="cell"
           :info-model="infoModel"
+          :disabled-field="false"
+          ref="cell"
       />
 
       <!--位置选择-->
-      <BookmarkLocalListIndex @selectedFolder="selectedFolder"/>
+      <BookmarkLocalListIndex
+          :info-model="currentFolderInfo"
+          @selectedFolder="selectedFolder"
+      />
 
       <div style="margin: 16px;">
         <van-button round block type="info" native-type="submit">存储</van-button>
@@ -36,51 +42,49 @@ export default {
     BookmarkLocalListIndex,
     BookmarkCellIndex
   },
+  props: {
+    isEdit: {
+      type: Boolean,
+      default() {
+        return false
+      }
+    },
+    infoModel: {
+      type: BookmarkInfoModel,
+      default() {
+        const infoModel = new BookmarkInfoModel()
+        infoModel.title = document.title
+        infoModel.url = location.href
+        return infoModel
+      }
+    }
+  },
   data() {
     return {
-      title: this.getEditState() ? '编辑书签' : '添加书签',
-      currentFolderInfo: {
-        type: BookmarkInfoModel,
-        default: null
-      },
-      infoModel: function () {
-        // if (this.getEditState()) {
-        //   // 编辑书签
-        //   return  this.$route.query.bookmarkInfo
-        // } else {
-          // 添加书签
-          const infoModel = new BookmarkInfoModel()
-          infoModel.title = document.title
-          infoModel.url = location.href
-          return infoModel
-          return infoModel
-        // }
-      }(),
+      title: this.isEdit ? '编辑书签' : '添加书签',
+      currentFolderInfo: this.isEdit ? BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.infoModel.accessPath)
+          : BookmarkInfoModel.getRootTree()
     };
   },
   mounted() {
-    this.getIconURL().then(res => {
-      if (res) {
-        this.infoModel.icon = res;
-      } else {
-        // 设置默认值
-        this.infoModel.setupYueDurIcon()
-      }
-    })
+    const rootTree = BookmarkInfoModel.getRootTree()
+    if (!this.isEdit) {
+      // 添加书签，下载icon
+      this.getIconURL().then(res => {
+        if (res) {
+          this.infoModel.icon = res;
+        } else {
+          // 设置默认值
+          this.infoModel.setupYueDurIcon()
+        }
+      })
+    }
   },
   methods: {
-    getEditState() {
-      // 编辑
-      if (this.$route.query.bookmarkInfo
-          && this.$route.query.bookmarkInfo.title
-          && this.$route.query.bookmarkInfo.url) return true;
-      // 添加
-      return false;
-    },
-    async getIconURL() {
-      const urlPrefix = location.protocol + '//' + location.host;
+    async getIconURL(urlPrefix = location.protocol + '//' + location.host) {
       const favicon =  urlPrefix + '/favicon.ico';
-      const apiFavicon = 'https://api.iowen.cn/favicon/' + location.host + '.png'
+      const host = urlPrefix.replace(/http[s?]:\/\//, '')
+      const apiFavicon = 'https://api.iowen.cn/favicon/' + host + '.png'
 
       // 直接取favicon
       if (await this.isImgURLValid(favicon)) {
@@ -109,14 +113,30 @@ export default {
       this.$router.back()
     },
     onSubmit(values) {
+      if (this.isEdit
+          && this.currentFolderInfo.id ==  BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.infoModel.accessPath).id) {
+        // 编辑状态下，只想改个名字而已
+        this.infoModel.updateInfoModel((model) => {
+          model.title = this.$refs.cell.title;
+          model.url = this.$refs.cell.url;
+          this.getIconURL(model.url).then(res => {
+            if (res) {
+              model.icon = res;
+            } else {
+              // 设置默认值
+              model.setupYueDurIcon()
+            }
+          });
+        })
+      } else {
+        // 改了存储路径或者非编辑状态下，相当于新建书签
         const infoModel =  new BookmarkInfoModel()
-      {
-        // TODO 写假数据
-        infoModel.title = '谷歌'
-        infoModel.url = 'https://www.google.com'
-        infoModel.icon = 'https://www.google.com/favicon.ico'
+        infoModel.title = this.$refs.cell.title;
+        infoModel.url = this.$refs.cell.url;
+        infoModel.icon = this.infoModel.icon;
+        this.currentFolderInfo.addSubmodel(infoModel)
       }
-      this.currentFolderInfo.addSubmodel(infoModel)
+      this.$router.back()
     },
     selectedFolder(bookmarkInfoModel) {
       this.currentFolderInfo = bookmarkInfoModel
@@ -129,5 +149,31 @@ export default {
 .bookmark-detail-container {
   background: #f5f5f5;
   height: 100%;
+}
+.cell {
+  margin: 16px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+/deep/ .cell .icon {
+  flex-basis: 50px;
+  height: 50px;
+  width: 50px;
+  line-height: 50px;
+  text-align: center;
+  margin: 10px 15px 10px 20px;
+}
+
+/deep/ .icon .van-icon__image {
+  height: 50px;
+  width: 50px;
+}
+/deep/ .cell .van-cell  {
+  padding: 10px 16px 10px 0px
+}
+/deep/ .cell .van-cell::after {
+  border-bottom: 1px solid #ebedf0;
 }
 </style>

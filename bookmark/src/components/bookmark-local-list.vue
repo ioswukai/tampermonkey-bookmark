@@ -8,6 +8,8 @@
   <div class="bookmark-local-list-container">
     <div class="local-title">位置</div>
     <div class="content">
+
+      <!-- 筛选结果cell-->
       <van-cell
           :title="currentFolderInfo&&currentFolderInfo.title"
           class="folder-cell"
@@ -17,27 +19,29 @@
         <!-- 使用 right-icon 插槽来自定义右侧图标 -->
         <template #icon>
           <van-icon
-              :name="currentFolderInfo&&currentFolderInfo.isIconUseNamePorp&&currentFolderInfo.icon"
+              :name="currentFolderInfo && currentFolderInfo.isIconUseNamePorp() ? currentFolderInfo.icon : null"
               class="folder-icon"
               :class="[!isLocalUnfold && 'folder-cell-selected',
-            currentFolderInfo && !currentFolderInfo.isIconUseNamePorp && currentFolderInfo.icon]"
+            currentFolderInfo && !currentFolderInfo.isIconUseNamePorp() && currentFolderInfo.icon]"
           />
         </template>
       </van-cell>
+
+      <!-- 筛选列表-->
       <div class="list" v-else>
         <van-cell
             class="folder-cell"
-            v-for="(folderInfo, index) in folderDataSource"
+            v-for="folderInfo in folderDataSource"
             :title="folderInfo.title"
             :key="folderInfo.id"
             @click="didSelectCell(folderInfo)" >
           <!-- 使用 right-icon 插槽来自定义右侧图标 -->
           <template #icon>
             <van-icon
-                :name="folderInfo&&folderInfo.isIconUseNamePorp&&folderInfo.icon"
+                :name="folderInfo && folderInfo.isIconUseNamePorp() ? folderInfo.icon : null"
                 class="folder-icon"
                 :class="[folderInfo.id == currentFolderInfo.id && 'folder-cell-selected',
-              folderInfo && !folderInfo.isIconUseNamePorp && folderInfo.icon]"
+              folderInfo && !folderInfo.isIconUseNamePorp() && folderInfo.icon]"
             />
           </template>
           <!-- 使用 right-icon 插槽来自定义右侧图标 -->
@@ -66,18 +70,18 @@ export default {
   // import引入的组件需要注入到对象中才能使用
   components: {},
   props: {
-    // patientIn: {
-    //   type: Object,
-    //   default () {
-    //     return {}
-    //   }
-    // }
+    infoModel: {
+      type: BookmarkInfoModel,
+      default() {
+        return BookmarkInfoModel.getRootTree()
+      }
+    }
   },
   data() {
     // 这里存放数据
     return {
       folderDataSource: [],
-      currentFolderInfo: BookmarkInfoModel.getRootTree(),
+      currentFolderInfo: this.infoModel,
       isLocalUnfold:false
     }
   },
@@ -102,11 +106,23 @@ export default {
   // 生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
     // 初始化数据源
-    this.folderDataSource = BookmarkInfoModel.rootTreeMapToArray().filter((model) => {
+    this.folderDataSource = BookmarkInfoModel.rootTreeMapToArray().filter((info) => {
       // 只显示文件夹
-      return model.url.length <= 0
+      if (this.infoModel.accessPath == BookmarkInfoModel.getRootTree().accessPath) {
+        // 根节点 显示所有文件夹
+        return info.url.length <= 0
+      } else {
+        // 非根节点 只能显示 this.infoModel及其父文件夹
+        return info.url.length <= 0 && this.infoModel.accessPath.includes(info.accessPath)
+      }
+    }).map((info) => {
+      // 把object类型的文件夹，转化成BookmarkInfoModel类型
+      const model = new BookmarkInfoModel()
+      for (const key in info) {
+        model[key] = info[key]
+      }
+      return model;
     });
-    this.currentFolderInfo = this.folderDataSource[0]
     // 通知父视图
     this.$emit('selectedFolder', this.currentFolderInfo)
   },
