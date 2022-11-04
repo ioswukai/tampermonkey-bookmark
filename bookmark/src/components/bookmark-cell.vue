@@ -42,6 +42,12 @@ export default {
   // import引入的组件需要注入到对象中才能使用
   components: {},
   props: {
+    isEdit: {
+      type: Boolean,
+      default() {
+        return true
+      }
+    },
     infoModel: {
       required: true,
       type: BookmarkInfoModel,
@@ -59,8 +65,8 @@ export default {
   data() {
     // 这里存放数据
     return {
-      title: this.infoModel&&this.infoModel.title,
-      url: this.infoModel&&this.infoModel.url,
+      title: this.isEdit ? (this.infoModel&&this.infoModel.title) : null,
+      url: this.isEdit ? (this.infoModel&&this.infoModel.url) : null,
     }
   },
   // 监听属性 类似于data概念

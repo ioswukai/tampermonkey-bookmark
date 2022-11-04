@@ -3,7 +3,7 @@
     <van-nav-bar
         :title="title"
         left-arrow
-        left-text="返回"
+        :left-text="infoModel.title"
         @click-left="onBackClick()"
     />
 
@@ -12,6 +12,7 @@
       <BookmarkCellIndex
           class="cell"
           :info-model="infoModel"
+          :is-edit="isEdit"
           :disabled-field="false"
           ref="cell"
       />
@@ -62,7 +63,16 @@ export default {
   data() {
     return {
       title: this.isEdit ? '编辑书签' : '添加书签',
-      currentFolderInfo: BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.infoModel.accessPath)
+      currentFolderInfo: (() => {
+        if (this.isEdit) {
+          // 编辑模式，传入的是当前folder, 需要取值父级目录
+          return BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.infoModel.accessPath)
+        } else {
+          // 添加模式，传入的是当前目录
+          return this.infoModel
+        }
+
+      })()
     };
   },
   mounted() {
@@ -132,7 +142,20 @@ export default {
         const infoModel =  new BookmarkInfoModel()
         infoModel.title = this.$refs.cell.title;
         infoModel.url = this.$refs.cell.url;
-        infoModel.icon = this.infoModel.icon;
+        if (this.isEdit) {
+          // 编辑状态下
+          infoModel.icon = this.infoModel.icon;
+        } else {
+          // 添加
+          this.getIconURL(this.$refs.cell.url).then(res => {
+            if (res) {
+              infoModel.icon = res;
+            } else {
+              // 设置默认值
+              infoModel.setupYueDurIcon()
+            }
+          })
+        }
         this.currentFolderInfo.addSubmodel(infoModel)
       }
       this.$router.back()

@@ -143,7 +143,7 @@ class BookmarkInfoModel {
         }
 
         if (dic instanceof BookmarkInfoModel) {
-            console.log('modelWithDic(dic) 中dic就是BookmarkInfoModel类型')
+            // console.log('modelWithDic(dic) 中dic就是BookmarkInfoModel类型')
             return dic
         }
 
