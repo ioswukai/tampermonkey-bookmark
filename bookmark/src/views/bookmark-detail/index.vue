@@ -76,18 +76,6 @@ export default {
     };
   },
   mounted() {
-    const rootTree = BookmarkInfoModel.getRootTree()
-    if (!this.isEdit) {
-      // 添加书签，下载icon
-      this.getIconURL().then(res => {
-        if (res) {
-          this.infoModel.icon = res;
-        } else {
-          // 设置默认值
-          this.infoModel.setupYueDurIcon()
-        }
-      })
-    }
   },
   methods: {
     async getIconURL(urlPrefix = location.protocol + '//' + location.host) {
@@ -103,8 +91,8 @@ export default {
       if (await this.isImgURLValid(apiFavicon)) {
         return apiFavicon
       };
-      // 都取不到，返回null
-      return null;
+      // 都取不到，返回默认值
+      return 'bookmark bookmark-yuedu';
     },
      isImgURLValid(imgURL) {
       return new Promise(function(resolve, reject) {
@@ -129,12 +117,7 @@ export default {
           model.title = this.$refs.cell.title;
           model.url = this.$refs.cell.url;
           this.getIconURL(model.url).then(res => {
-            if (res) {
               model.icon = res;
-            } else {
-              // 设置默认值
-              model.setupYueDurIcon()
-            }
           });
         })
       } else {
@@ -148,12 +131,7 @@ export default {
         } else {
           // 添加
           this.getIconURL(this.$refs.cell.url).then(res => {
-            if (res) {
-              infoModel.icon = res;
-            } else {
-              // 设置默认值
-              infoModel.setupYueDurIcon()
-            }
+            infoModel.icon = res;
           })
         }
         this.currentFolderInfo.addSubmodel(infoModel)
