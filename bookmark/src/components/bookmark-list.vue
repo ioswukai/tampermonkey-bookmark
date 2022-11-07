@@ -10,19 +10,30 @@
         class="cell-item"
         v-for="item in folderDataSource"
         :key="item.id">
-      <!--文件夹cell-->
-      <BookmarkFolderCellIndex
-          @onCellClick="onCellClick"
-          :info-model="item"
-          v-if="item.isFolder()"
-      />
-      <!--书签cell-->
-      <BookmarkCellIndex
-          @onCellClick="onCellClick"
-          :info-model="item"
-          v-else
-      />
 
+      <van-swipe-cell ref="swipeCell">
+        <template #left v-if="!canSwipeDelete">
+          <van-button square type="primary" text="选择" />
+        </template>
+        <!--文件夹cell-->
+        <BookmarkFolderCellIndex
+            @onCellClick="onCellClick"
+            :info-model="item"
+            v-if="item.isFolder()"
+        />
+        <!--书签cell-->
+        <BookmarkCellIndex
+            @onCellClick="onCellClick"
+            :info-model="item"
+            v-else
+        />
+        <template #right v-if="canSwipeDelete">
+          <van-button square type="danger" text="删除" />
+        </template>
+        <template #right v-else>
+          <van-button square type="danger" text="移动" />
+        </template>
+      </van-swipe-cell>
     </div>
   </div>
 </template>
@@ -55,12 +66,16 @@ export default {
         // 把object类型的书签，转化成BookmarkInfoModel类型
         return BookmarkInfoModel.modelWithDic(info,false);
       }),
+      canSwipeDelete: true,
     }
   },
   // 监听属性 类似于data概念
   computed: {},
   // 方法集合
   methods: {
+    setCellCanSwipeDelete(canSwipeDelele) {
+      this.canSwipeDelete = canSwipeDelele
+    },
     refreshData(infoModel) {
       this.folderDataSource = infoModel.listInFolder.map((info) => {
         // 把object类型的书签，转化成BookmarkInfoModel类型
@@ -72,7 +87,9 @@ export default {
     }
   },
   // 监控data中的数据变化
-  watch: {},
+  watch: {
+
+  },
   // 生命周期 - 创建完成（可以访问当前this实例）
   created() {
 
