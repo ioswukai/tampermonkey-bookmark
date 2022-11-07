@@ -59,8 +59,6 @@ export default {
           name: 'bookmark-folder-detail',
           params: {
             infoModel: (() => {
-              console.log('添加文件夹，传递的参数')
-              console.log(this.infoModel)
               return this.infoModel
             })()
           }
@@ -71,8 +69,6 @@ export default {
           name:'bookmark-detail',
           params: {
             infoModel: (() => {
-              console.log('添加书签，传递的参数')
-              console.log(this.infoModel)
               return this.infoModel
             })()
           }
@@ -119,8 +115,7 @@ export default {
         })
       } else  {
         // 常规状态
-        if (infoModel.isFolder()
-            && infoModel.listInFolder.length > 0){
+        if (infoModel.isFolder()){
           // 文件夹
           this.infoModel = infoModel
           // 强制list刷新

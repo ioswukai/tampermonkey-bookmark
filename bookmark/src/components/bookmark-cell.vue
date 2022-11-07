@@ -42,18 +42,9 @@ export default {
   // import引入的组件需要注入到对象中才能使用
   components: {},
   props: {
-    isEdit: {
-      type: Boolean,
-      default() {
-        return true
-      }
-    },
     infoModel: {
       required: true,
       type: BookmarkInfoModel,
-      default () {
-        return null
-      }
     },
     disabledField: {
       type: Boolean,
@@ -65,8 +56,8 @@ export default {
   data() {
     // 这里存放数据
     return {
-      title: this.isEdit ? (this.infoModel&&this.infoModel.title) : null,
-      url: this.isEdit ? (this.infoModel&&this.infoModel.url) : null,
+      title: this.infoModel&&this.infoModel.title,
+      url: this.infoModel&&this.infoModel.url
     }
   },
   // 监听属性 类似于data概念
@@ -127,7 +118,7 @@ export default {
   height: 35px;
   width: 35px;
 }
-.bookmark-yuedu:before {
+.bookmark-yuedu::before {
   font-size: 35px;
 }
 .fields-content {

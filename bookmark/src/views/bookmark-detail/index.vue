@@ -11,8 +11,7 @@
       <!--书签cell-->
       <BookmarkCellIndex
           class="cell"
-          :info-model="infoModel"
-          :is-edit="isEdit"
+          :info-model="isEdit ? infoModel : addInfoModel"
           :disabled-field="false"
           ref="cell"
       />
@@ -52,20 +51,24 @@ export default {
     },
     infoModel: {
       type: BookmarkInfoModel,
-      default() {
-        const infoModel = new BookmarkInfoModel()
-        infoModel.title = document.title
-        infoModel.url = location.href
-        return infoModel
-      }
+      required: true
     }
   },
   data() {
     return {
       title: this.isEdit ? '编辑书签' : '添加书签',
+      addInfoModel: (() => {
+        const infoModel = new BookmarkInfoModel()
+        infoModel.title = document.title
+        infoModel.url = location.href
+        this.getIconURL(infoModel.url).then(res => {
+          infoModel.icon = res;
+        });
+        return infoModel
+      })(),
       currentFolderInfo: (() => {
         if (this.isEdit) {
-          // 编辑模式，传入的是当前folder, 需要取值父级目录
+          // 编辑模式，传入的是当前markinfo, 需要取值父级目录
           return BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.infoModel.accessPath)
         } else {
           // 添加模式，传入的是当前目录
@@ -75,8 +78,7 @@ export default {
       })()
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     async getIconURL(urlPrefix = location.protocol + '//' + location.host) {
       const favicon =  urlPrefix + '/favicon.ico';
@@ -169,6 +171,9 @@ export default {
 /deep/ .icon .van-icon__image {
   height: 50px;
   width: 50px;
+}
+/deep/ .bookmark-yuedu::before {
+  font-size: 50px;
 }
 /deep/ .cell .van-cell  {
   padding: 10px 16px 10px 0px
