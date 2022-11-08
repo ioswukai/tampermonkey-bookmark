@@ -68,7 +68,7 @@ pop-content {
 
 }
 .icon-container {
-  position: relative;
+  position: fixed;
   top: calc(50vh - 34px);
   left: 20px;
   background: white;
