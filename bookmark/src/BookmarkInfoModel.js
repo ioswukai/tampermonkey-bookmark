@@ -45,6 +45,14 @@ class BookmarkInfoModel {
         // 五角星
         this.icon = 'star'
     }
+    /** 交换子节点的位置*/
+    swapSubmodels(newIndex, oldIndex) {
+        // 在tree中找到当前节点，因为当前节点可能是tree上深拷贝的节点，所以不能直接操作当前节点进行添加
+        const targetListInFolder = BookmarkInfoModel.getTargetNodeWithAccessPath(BookmarkInfoModel.getRootTree() ,this.accessPath).listInFolder;
+        [targetListInFolder[newIndex], targetListInFolder[oldIndex]] = [targetListInFolder[oldIndex], targetListInFolder[newIndex]];
+        // 刷新一下tree的本地存储
+        store.commit('setBookmarkListData', BookmarkInfoModel.getRootTree())
+    }
     /** 更新当前节点信息 */
     updateInfoModel(callback) {
         const model = BookmarkInfoModel.getTargetNodeWithAccessPath(BookmarkInfoModel.getRootTree(), this.accessPath)
@@ -78,6 +86,7 @@ class BookmarkInfoModel {
         // 刷新一下tree的本地存储
        store.commit('setBookmarkListData', BookmarkInfoModel.getRootTree())
     }
+    /** 移除子节点 */
     removeFromFolder() {
         // 找到当前节点的父节点数组
         const targetListInFolder = BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.accessPath).listInFolder

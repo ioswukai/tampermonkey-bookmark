@@ -6,42 +6,54 @@
 -->
 <template>
   <div class="bookmark-list-container">
-    <van-swipe-cell
-          ref="swipeCell"
-          v-for="item in folderDataSource"
-          :key="item.id"
-          :disabled="!canSwipeDelete"
-          @click="onSwipeCellClick($event, item)"
-      >
-        <div class="cell-container">
-          <i class="bookmark bookmark-jianhao"
-             @click="deleteBookmark(item)"
-             v-if="!canSwipeDelete"
-          />
-          <!--文件夹cell-->
-          <BookmarkFolderCellIndex
-              class="cell-content"
-              :class="{'cell-margin-left-zero': !canSwipeDelete}"
-              @onCellClick="onCellClick"
-              :info-model="item"
-              v-if="item.isFolder()"
-          />
-          <!--书签cell-->
-          <BookmarkCellIndex
-              class="cell-content"
-              :class="{'cell-margin-left-zero': !canSwipeDelete}"
-              @onCellClick="onCellClick"
-              :info-model="item"
-              v-else
-          />
-          <i class="bookmark bookmark-move"
-             v-if="!canSwipeDelete"
-          />
-        </div>
-        <template #right v-if="canSwipeDelete">
-          <van-button square type="danger" text="删除" />
-        </template>
-      </van-swipe-cell>
+    <!--使用draggable组件-->
+    <draggable
+        v-model="folderDataSource"
+        chosenClass="chosen"
+        handle=".bookmark-move"
+        animation="300"
+        @start="onStart"
+        @end="onEnd">
+      <transition-group>
+        <van-swipe-cell
+            ref="swipeCell"
+            v-for="item in folderDataSource"
+            :key="item.id"
+            :disabled="!canSwipeDelete"
+            @click="onSwipeCellClick($event, item)"
+        >
+          <div class="cell-container">
+            <i class="bookmark bookmark-jianhao"
+               @click="deleteBookmark(item)"
+               v-if="!canSwipeDelete"
+            />
+            <!--文件夹cell-->
+            <BookmarkFolderCellIndex
+                class="cell-content"
+                :class="{'cell-margin-left-zero': !canSwipeDelete}"
+                @onCellClick="onCellClick"
+                :info-model="item"
+                v-if="item.isFolder()"
+            />
+            <!--书签cell-->
+            <BookmarkCellIndex
+                class="cell-content"
+                :class="{'cell-margin-left-zero': !canSwipeDelete}"
+                @onCellClick="onCellClick"
+                :info-model="item"
+                v-else
+            />
+            <i class="bookmark bookmark-move"
+               v-if="!canSwipeDelete"
+            />
+          </div>
+          <template #right v-if="canSwipeDelete">
+            <van-button square type="danger" text="删除" />
+          </template>
+        </van-swipe-cell>
+      </transition-group>
+    </draggable>
+
   </div>
 </template>
 
@@ -52,13 +64,17 @@
 import BookmarkInfoModel from '../BookmarkInfoModel.js'
 import BookmarkFolderCellIndex from './bookmark-folder-cell.vue'
 import BookmarkCellIndex from './bookmark-cell.vue'
+//导入draggable组件
+import draggable from 'vuedraggable'
 
 export default {
   name: "BookmarkListIndex",
   // import引入的组件需要注入到对象中才能使用
+  // 注册draggable组件
   components: {
     BookmarkFolderCellIndex,
-    BookmarkCellIndex
+    BookmarkCellIndex,
+    draggable
   },
   props: {
     infoModel: {
@@ -110,7 +126,18 @@ export default {
       this.folderDataSource.splice(idx, 1)
       // 删除本地存储数据
       infoModel.removeFromFolder()
-    }
+    },
+    onStart(arg){
+      // console.log('开始拖拽事件')
+      // console.log(arg)
+    },
+    onEnd(arg) {
+      // console.log('拖拽结束事件')
+      // console.log(arg)
+      const {newIndex, oldIndex} = arg
+      // 修改本地存储数据的顺序
+      this.infoModel.swapSubmodels(newIndex, oldIndex)
+    },
   },
   // 监控data中的数据变化
   watch: {
@@ -178,8 +205,14 @@ export default {
   color: #999;
   font-size: 20px;
   text-align: center;
+  // 设置可被draggable 拖拽
+  cursor: move;
 }
 .btn {
   flex-basis: 60px;
+}
+/*选中边框的样式*/
+.chosen {
+  border: solid 2px #3089dc !important;
 }
 </style>
