@@ -133,6 +133,12 @@ export default {
       }
     }
   },
+  activated() {
+    // 重新获取当前的model，以便在添加书签后，刷新列表
+    this.infoModel = BookmarkInfoModel.getTargetNodeWithAccessPath(this.rootInfoModel, this.infoModel.accessPath)
+    // 刷新当前页面
+    this.$refs.list.refreshData(this.infoModel)
+  }
 }
 </script>
 

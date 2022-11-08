@@ -12,6 +12,9 @@ const routes = [
     { // 首页
         name: 'home',
         path: '/', // 根页面
+        meta: {
+            keepAlive: true //设置页面是否需要使用缓存
+        },
         component: Home,
     },
     { // 书签详情

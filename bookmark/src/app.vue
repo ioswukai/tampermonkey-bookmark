@@ -8,8 +8,13 @@
         :style="{height: '70%'}"
         v-if="store.state.isListShow"
     >
+      <!-- vue2.x配置 -->
+      <keep-alive>
+        <!-- 一级路由的出口 -->
+        <router-view v-if="$route.meta.keepAlive" />
+      </keep-alive>
       <!-- 一级路由的出口 -->
-      <router-view />
+      <router-view v-if="!$route.meta.keepAlive"/>
     </van-popup>
     <div class="icon-container"
          v-else-if="store.state.isBookmarkShow">
