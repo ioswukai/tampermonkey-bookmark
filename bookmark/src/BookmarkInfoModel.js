@@ -1,5 +1,4 @@
 import store from "./utils/vuex-store";
-import { getItem, StoreKey } from './utils/storage'
 
 class BookmarkInfoModel {
     // 构造器
@@ -79,7 +78,19 @@ class BookmarkInfoModel {
         // 刷新一下tree的本地存储
        store.commit('setBookmarkListData', BookmarkInfoModel.getRootTree())
     }
+    removeFromFolder() {
+        // 找到当前节点的父节点数组
+        const targetListInFolder = BookmarkInfoModel.getSuperNode(BookmarkInfoModel.getRootTree(), this.accessPath).listInFolder
+        // 找到当前模型的索引
+        const idx = targetListInFolder.findIndex((node) => {
+            return node.id == this.id
+        });
+        // 删除当前索引对应的对象
+        targetListInFolder.splice(idx, 1)
 
+        // 刷新一下tree的本地存储
+        store.commit('setBookmarkListData', BookmarkInfoModel.getRootTree())
+    }
     /*********** 静态方法 *********/
     /** 创造根节点 */
     static createRootTree() {

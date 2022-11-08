@@ -54,7 +54,7 @@ export default {
   // 监控data中的数据变化
   watch: {
     isEdit: function (val) {
-      this.$refs.list.setCellCanSwipeDelete(val)
+      this.$refs.list.setCellCanSwipeDelete(!val)
     },
   },
   methods: {

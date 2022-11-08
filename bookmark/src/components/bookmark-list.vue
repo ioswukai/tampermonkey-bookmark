@@ -11,10 +11,11 @@
         v-for="item in folderDataSource"
         :key="item.id">
 
-      <van-swipe-cell ref="swipeCell">
-        <template #left v-if="!canSwipeDelete">
-          <van-button square type="primary" text="选择" />
-        </template>
+      <van-swipe-cell
+          ref="swipeCell"
+          :disabled="!canSwipeDelete"
+          @click="onSwipeCellClick($event, item)"
+      >
         <!--文件夹cell-->
         <BookmarkFolderCellIndex
             @onCellClick="onCellClick"
@@ -29,9 +30,6 @@
         />
         <template #right v-if="canSwipeDelete">
           <van-button square type="danger" text="删除" />
-        </template>
-        <template #right v-else>
-          <van-button square type="danger" text="移动" />
         </template>
       </van-swipe-cell>
     </div>
@@ -75,6 +73,10 @@ export default {
   methods: {
     setCellCanSwipeDelete(canSwipeDelele) {
       this.canSwipeDelete = canSwipeDelele
+      this.$refs.swipeCell.forEach((el) => {
+        // 关闭当前打开的
+        el.close()
+      });
     },
     refreshData(infoModel) {
       this.folderDataSource = infoModel.listInFolder.map((info) => {
@@ -84,6 +86,18 @@ export default {
     },
     onCellClick(infoModel) {
       this.$emit('onCellClick', infoModel)
+    },
+    onSwipeCellClick(position, infoModel) {
+      // 非删除不操作
+      if (position != 'right') return
+      // 找到当前模型的索引
+      const idx = this.folderDataSource.findIndex((node) => {
+        return node.id == infoModel.id
+      });
+      // 删除当前索引对应的对象
+      this.folderDataSource.splice(idx, 1)
+      // 删除本地存储数据
+      infoModel.removeFromFolder()
     }
   },
   // 监控data中的数据变化
