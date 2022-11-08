@@ -6,33 +6,42 @@
 -->
 <template>
   <div class="bookmark-list-container">
-    <div
-        class="cell-item"
-        v-for="item in folderDataSource"
-        :key="item.id">
-
-      <van-swipe-cell
+    <van-swipe-cell
           ref="swipeCell"
+          v-for="item in folderDataSource"
+          :key="item.id"
           :disabled="!canSwipeDelete"
           @click="onSwipeCellClick($event, item)"
       >
-        <!--文件夹cell-->
-        <BookmarkFolderCellIndex
-            @onCellClick="onCellClick"
-            :info-model="item"
-            v-if="item.isFolder()"
-        />
-        <!--书签cell-->
-        <BookmarkCellIndex
-            @onCellClick="onCellClick"
-            :info-model="item"
-            v-else
-        />
+        <div class="cell-container">
+          <i class="bookmark bookmark-jianhao"
+             @click="deleteBookmark(item)"
+             v-if="!canSwipeDelete"
+          />
+          <!--文件夹cell-->
+          <BookmarkFolderCellIndex
+              class="cell-content"
+              :class="{'cell-margin-left-zero': !canSwipeDelete}"
+              @onCellClick="onCellClick"
+              :info-model="item"
+              v-if="item.isFolder()"
+          />
+          <!--书签cell-->
+          <BookmarkCellIndex
+              class="cell-content"
+              :class="{'cell-margin-left-zero': !canSwipeDelete}"
+              @onCellClick="onCellClick"
+              :info-model="item"
+              v-else
+          />
+          <i class="bookmark bookmark-move"
+             v-if="!canSwipeDelete"
+          />
+        </div>
         <template #right v-if="canSwipeDelete">
           <van-button square type="danger" text="删除" />
         </template>
       </van-swipe-cell>
-    </div>
   </div>
 </template>
 
@@ -90,6 +99,9 @@ export default {
     onSwipeCellClick(position, infoModel) {
       // 非删除不操作
       if (position != 'right') return
+      this.deleteBookmark(infoModel)
+    },
+    deleteBookmark(infoModel) {
       // 找到当前模型的索引
       const idx = this.folderDataSource.findIndex((node) => {
         return node.id == infoModel.id
@@ -141,5 +153,33 @@ export default {
   width: 100%;
   overflow-y: auto;
 }
-
+.cell-container {
+  display: flex;
+  justify-content: stretch;
+  align-items: center;
+}
+.cell-content {
+  flex: 1;
+}
+/deep/ .cell-margin-left-zero .icon {
+  margin-left: 0px;
+}
+/deep/ .cell-margin-left-zero .folder-icon {
+  margin-left: 0px;
+}
+.bookmark-jianhao {
+  flex-basis: 52px;
+  color: red;
+  font-size: 20px;
+  text-align: center;
+}
+.bookmark-move {
+  flex-basis: 52px;
+  color: #999;
+  font-size: 20px;
+  text-align: center;
+}
+.btn {
+  flex-basis: 60px;
+}
 </style>
