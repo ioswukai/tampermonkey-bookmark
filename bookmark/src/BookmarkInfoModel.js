@@ -49,6 +49,7 @@ class BookmarkInfoModel {
     swapSubmodels(newIndex, oldIndex) {
         // 在tree中找到当前节点，因为当前节点可能是tree上深拷贝的节点，所以不能直接操作当前节点进行添加
         const targetListInFolder = BookmarkInfoModel.getTargetNodeWithAccessPath(BookmarkInfoModel.getRootTree() ,this.accessPath).listInFolder;
+        // 交换其子节点的位置
         [targetListInFolder[newIndex], targetListInFolder[oldIndex]] = [targetListInFolder[oldIndex], targetListInFolder[newIndex]];
         // 刷新一下tree的本地存储
         store.commit('setBookmarkListData', BookmarkInfoModel.getRootTree())
@@ -57,6 +58,7 @@ class BookmarkInfoModel {
     updateInfoModel(callback) {
         const model = BookmarkInfoModel.getTargetNodeWithAccessPath(BookmarkInfoModel.getRootTree(), this.accessPath)
         if (callback) {
+            // 执行修改的回调操作
             callback(model)
             // 刷新一下tree的本地存储
             store.commit('setBookmarkListData', BookmarkInfoModel.getRootTree())
@@ -114,23 +116,6 @@ class BookmarkInfoModel {
     static  getRootTree() {
         return store.state.bookmarkListData
     }
-    /** 遍历当前模型树 */
-    static mapModelInfoTree(tree, func) {
-        // 数据非法
-        if (!tree) {
-            console.log('mapModelInfoTree(tree, func) 中tree数据非法')
-            return
-        }
-
-        // 深度优先遍历树形结构 node当前节点  curTree当前树
-        let node, curTree = cloneDeepObj(tree);
-        // 遍历子节点
-        while ((node = curTree.listInFolder.shift())) {
-            // 调用回调
-            func(node)
-            node.listInFolder && curTree.listInFolder.unshift(...node.listInFolder)
-        }
-    }
     /** 将某节点的树形结构映射成数组，数组按序排列所有节点 */
     static treeMapToArray(tree) {
         // 数据非法
@@ -143,8 +128,7 @@ class BookmarkInfoModel {
         // 添加根节点
         arr.unshift(tree)
         // 遍历树
-
-        this.mapModelInfoTree(tree,(node) => {
+        mapModelInfoTree(tree,(node) => {
             // 添加子节点
             arr.push(node)
         })
@@ -180,7 +164,7 @@ class BookmarkInfoModel {
         }
         // 将树形结构映射成 array
         let targetTree, dics = this.treeMapToArray(dic);
-        // 将字典转化成模型
+        // 倒序遍历，将字典转化成模型
         for (let i = dics.length -1; i >= 0; i--) {
             const item = dics[i];
             // 新建模型
@@ -211,7 +195,7 @@ class BookmarkInfoModel {
                 targetTree = model
             }
         }
-        // console.log('最终结果model是')
+        // console.log('最终结果根节点model是')
         // console.log(targetTree)
         return targetTree
     }
@@ -229,13 +213,16 @@ class BookmarkInfoModel {
 
         // 在tree中找到当前节点，accessPath由'/'分割
         let accessKeys = accessPath.split('/');
+        // 获取父节点路径（子节点路径上删除，子节点自身即可）
         let superAccessKeys = [...accessKeys]
         superAccessKeys.pop()
+        // 判断根节点
         if (accessKeys[accessKeys.length -1] == tree.id
             || superAccessKeys[superAccessKeys.length -1] == tree.id) {
             // 当前节点是根节点  或当前节点父节点是根节点
             return tree;
         } else  {
+            // 父节点为非根节点
             return BookmarkInfoModel.getTargetNodeWithAccessPath(tree, superAccessKeys.join('/'))
         }
     }
@@ -296,6 +283,23 @@ function  createUUID() {
         return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
     }
     return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+}
+/** 遍历当前模型树 */
+function mapModelInfoTree(tree, func) {
+    // 数据非法
+    if (!tree) {
+        console.log('mapModelInfoTree(tree, func) 中tree数据非法')
+        return
+    }
+
+    // 深度优先遍历树形结构 node当前节点  curTree当前树
+    let node, curTree = cloneDeepObj(tree);
+    // 遍历子节点
+    while ((node = curTree.listInFolder.shift())) {
+        // 调用回调
+        func(node)
+        node.listInFolder && curTree.listInFolder.unshift(...node.listInFolder)
+    }
 }
 
 export default BookmarkInfoModel

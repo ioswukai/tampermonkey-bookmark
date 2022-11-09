@@ -4,7 +4,7 @@
         class="pop-content"
         v-model:show="store.state.isListShow"
         position="bottom"
-        :overlay="true"
+        :overlay="false"
         :style="{height: '70%'}"
         v-if="store.state.isListShow"
     >
@@ -64,8 +64,10 @@ export default {
 </script>
 
 <style scoped>
-pop-content {
-
+.pop-content {
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
 }
 .icon-container {
   position: fixed;
