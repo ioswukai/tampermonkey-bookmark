@@ -127,7 +127,14 @@ export default {
           // 强制list刷新
           this.$refs.list.refreshData(this.infoModel)
         } else {
-          // 书签 当前窗口打开书签
+          // 书签
+          // 修复 如果打开网址是当前页面 则会跳转到添加书签页的bug，先打开一个空白页
+          if (infoModel.url.indexOf(location.href) != -1) {
+            // 取消当前弹框
+            this.onCancelClick()
+            return;
+          }
+          // 在当前窗口中打开书签
           window.open(infoModel.url,'_self')
         }
       }
