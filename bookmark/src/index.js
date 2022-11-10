@@ -1,14 +1,9 @@
 import Vue from 'vue'
 import App from './app.vue'
-// 导入vant
-import Vant from 'vant'
-import 'vant/lib/index.css'
 // 导入router设置
 import router from './router'
 // 导入icon
 import './icon.less'
-
-Vue.use(Vant)
 
 const wokooApp = document.createElement('div')
 wokooApp.id = 'wokooApp-bookmark-35561'

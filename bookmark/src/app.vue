@@ -31,6 +31,32 @@
 
 <script>
 import store from './utils/vuex-store'
+// 手动按需导入
+// import Popup from 'vant/lib/popup';
+// import 'vant/lib/popup/style';
+// import Icon from 'vant/lib/icon';
+// import 'vant/lib/icon/style';
+
+// 自动按需导入
+import Vue from 'vue'
+import {
+  Popup,
+  Icon,
+  NavBar,
+  Cell,
+  Field,
+  SwipeCell,
+  Button,
+  Form
+} from 'vant';
+Vue.use(Popup)
+    .use(Icon)
+    .use(NavBar)
+    .use(Cell)
+    .use(Field)
+    .use(SwipeCell)
+    .use(Button)
+    .use(Form);
 
 export default {
   name: 'App',
@@ -44,6 +70,9 @@ export default {
     this.onBookmarkShow();
   },
   components: {
+    // 手动按需导入需要注册组件
+    // 'van-popup': Popup,
+    // 'van-icon': Icon
   },
   computed: {
   },
