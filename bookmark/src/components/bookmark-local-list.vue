@@ -42,6 +42,7 @@
                 class="folder-icon"
                 :class="[folderInfo.id == currentFolderInfo.id && 'folder-cell-selected',
               folderInfo && !folderInfo.isIconUseNamePorp() && folderInfo.icon]"
+                :style="{marginLeft: 8 * (folderInfo.accessPath.split('/').length - 2) + 'px'}"
             />
           </template>
           <!-- 使用 right-icon 插槽来自定义右侧图标 -->

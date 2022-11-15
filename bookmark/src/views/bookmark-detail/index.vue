@@ -134,6 +134,10 @@ export default {
           // 添加
           this.getIconURL(this.$refs.cell.url).then(res => {
             infoModel.icon = res;
+            // 这是异步操作，所以取到icon值后需要再设置下icon的存储
+            infoModel.updateInfoModel((model) => {
+              model.icon = res;
+            });
           })
         }
         this.currentFolderInfo.addSubmodel(infoModel)

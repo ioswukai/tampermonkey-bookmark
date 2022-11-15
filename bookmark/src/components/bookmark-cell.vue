@@ -57,7 +57,7 @@ export default {
     // 这里存放数据
     return {
       title: this.infoModel&&this.infoModel.title,
-      url: this.infoModel&&this.infoModel.url
+      url: this.finalURL()
     }
   },
   // 监听属性 类似于data概念
@@ -67,6 +67,19 @@ export default {
     onCellClick() {
       this.$emit('onCellClick', this.infoModel)
     },
+    finalURL() {
+      let url = this.infoModel&&this.infoModel.url
+
+      // 不存在，返回null
+      if (url == false) { return url }
+
+      // 去掉#/bookmark-detail相关的内容
+      const idx = url.lastIndexOf('/#/bookmark-detail')
+      if (idx != -1) {
+        url = url.substr(0, idx)
+      }
+      return url
+    }
   },
   // 监控data中的数据变化
   watch: {},
